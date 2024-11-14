@@ -1,0 +1,8 @@
+@use "pico" with (
+    $enable-semantic-container: true,
+    $enable-classes: false
+);
+
+footer {
+    text-align: center;
+}
