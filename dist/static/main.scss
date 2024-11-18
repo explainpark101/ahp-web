@@ -3,6 +3,40 @@
     $enable-classes: false
 );
 
+article:has(.fold input[type=checkbox]) {
+    max-height: 1000vh;
+    overflow-y: hidden;
+    transition: 150ms;
+    &:has(.fold input[type=checkbox]:checked) {
+        max-height: 3rem;
+    }
+}
+
 footer {
+    display: grid;
     text-align: center;
+}
+
+fieldset:has(>legend) {
+    legend {
+        font-size: 1.1rem;
+    }
+    :not(legend) {
+        margin-left: 1rem;
+    }
+}
+
+.d-flex {
+    display: flex;
+}
+.justify-content-end {
+    justify-content: end;
+}
+.justify-content-space-between {
+    justify-content: space-between;
+}
+
+input[readonly] {
+    opacity: .8;
+    cursor: default;
 }

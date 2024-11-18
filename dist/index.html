@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>AHP project</title>
     <link rel="stylesheet" href="/static/main.css"/>
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTML'></script>
 </head>
 <body>
     <main>
@@ -28,15 +29,44 @@
                         />
                     </div>
                 </fieldset>
-                <button type="submit">Create Table</button>
+                <button type="submit" form="step-0-setting-form" >Set Items & Criterias</button>
             </form>
         </article>
         <article id="step-1">
-            <!-- Item Name and Criteria Name Setting -->
+            <div class="fold d-flex justify-content-space-between">
+                <h4>Name of Item and Criteria Setting</h4>
 
+                <label>
+                    <input type="checkbox"/>
+                    fold
+                </label>
+            </div>
+            <!-- Item Name and Criteria Name Setting -->
+            <form id="step-1-form">
+                <fieldset id="item-names">
+                    <legend>Item Names</legend>
+
+                </fieldset>
+                <fieldset id="criteria-names">
+                    <legend>Criteria Names</legend>
+                </fieldset>
+                <button type="submit">Create Table</button>
+            </form>
         </article>
         <article id="step-2">
             <!-- Item per Criteria Score Input -->
+            <div class="fold d-flex justify-content-space-between">
+                <h4>Name of Item and Criteria Setting</h4>
+
+                <label>
+                    <input type="checkbox"/>
+                    fold
+                </label>
+            </div>
+            <form method="post" id="step-2-form">
+                <div class="contents"></div>
+                <button type="submit" form="step-2-form">Calculate Matrix</button>
+            </form>
         </article>
         <article id="step-3">
             <!-- Criteria Score Input -->
@@ -46,12 +76,14 @@
         </article>
         <article id="step-results">
             <!-- Results -->
+            $$I_{3} = 32$$
         </article>
     </main>
     <footer>
         <span>고려대학교 스마트도시학부 박재형</span>
         <span>jaehyung101@korea.ac.kr</span>
     </footer>
-    <script src="./static/index.js"></script>
+
+    <script src="/static/index.js"></script>
 </body>
 </html>
