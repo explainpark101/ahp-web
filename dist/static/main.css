@@ -2443,3 +2443,7 @@ input[readonly] {
   opacity: 0.8;
   cursor: default;
 }
+
+.d-none {
+  display: none;
+}

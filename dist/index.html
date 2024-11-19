@@ -11,6 +11,12 @@
     <main>
         <article>
             <h2>AHP calculation Page</h2>
+            <div class="d-flex justify-content-end" style="gap: .5rem;">
+                <button type="button" id="import-data-button">import data
+                    <input type="file" id="import-data" class="d-none">
+                </button>
+                <button type="button" id="export-data-button">export data</button>
+            </div>
         </article>
         <article id="step-0">
             <h4>Number of Item and Criteria Setting</h4>
@@ -42,7 +48,7 @@
                 </label>
             </div>
             <!-- Item Name and Criteria Name Setting -->
-            <form id="step-1-form">
+            <form id="step-1-form" class="d-none">
                 <fieldset id="item-names">
                     <legend>Item Names</legend>
 
@@ -63,7 +69,7 @@
                     fold
                 </label>
             </div>
-            <form method="post" id="step-2-form">
+            <form method="post" id="step-2-form" class="d-none">
                 <div class="contents"></div>
                 <button type="submit" form="step-2-form">Calculate Matrix</button>
             </form>
@@ -71,12 +77,11 @@
         <article id="step-3">
             <!-- Criteria Score Input -->
         </article>
-        <article id="step-process">
-
+        <article id="step-process" class="d-none">
+            <span>process view is not on development</span>
         </article>
         <article id="step-results">
             <!-- Results -->
-            $$I_{3} = 32$$
         </article>
     </main>
     <footer>
