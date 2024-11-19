@@ -12,7 +12,7 @@ class Item {
         this.#nameInputContainer = document.createElement("div");
         this.#nameInputContainer.innerHTML = `
             <label for="item-name-${this.no}">Item ${this.no} Name</label>
-            <input type="text" id="item-name-${this.no}" form="step-1-form" />
+            <input type="text" id="item-name-${this.no}" name="item-name-${this.no}" form="step-1-form" />
         `;
         const input = this.#nameInputContainer.querySelector(`input`);
         input.value = this.name;
@@ -38,7 +38,7 @@ class Criteria {
         this.#nameInputContainer = document.createElement("div");
         this.#nameInputContainer.innerHTML = `
             <label for="criteria-name-${this.no}">Item ${this.no} Name</label>
-            <input type="text" id="criteria-name-${this.no}" form="step-1-form" />
+            <input type="text" id="criteria-name-${this.no}" name="criteria-name-${this.no}" form="step-1-form" />
         `;
         const input = this.#nameInputContainer.querySelector(`input`);
         input.value = this.name;
