@@ -212,7 +212,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
         let article = document.createElement("article");
         let title = matrixIndex >= criterias.length ? "Criteria" : criterias[matrixIndex];
         article.innerHTML = `
-            <h4>${title}</h4>
+            <h4>${title.name}</h4>
             <table class="row-average">
                 <thead>
                     <tr>
