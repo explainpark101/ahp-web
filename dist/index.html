@@ -24,15 +24,17 @@
                 <fieldset>
                     <div class="form-group">
                         <label for="item-count">Number of Item</label>
-                        <input type="number" name="item-count" id="item-count" value="3" step="1" required="required"
+                        <input type="number" name="item-count" id="item-count" value="3" step="1" max="15" required="required"
                             form="step-0-setting-form"
                         />
+                        <small>max value: 15</small>
                     </div>
                     <div class="form-group">
                         <label for="criteria-count">Number of Criteria</label>
-                        <input type="number" name="criteria-count" id="criteria-count" value="4" step="1" required="required"
+                        <input type="number" name="criteria-count" id="criteria-count" value="4" step="1" max="15" required="required"
                             form="step-0-setting-form"
                         />
+                        <small>max value: 15</small>
                     </div>
                 </fieldset>
                 <button type="submit" form="step-0-setting-form" >Set Items & Criterias</button>
