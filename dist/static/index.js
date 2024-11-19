@@ -173,7 +173,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     );
     // calculation result showing
 
-    let calcResult = Object.fromEntries(Object.entries(calcData).map(([key, mat])=>{
+    let calcResult = Object.fromEntries(Object.entries(calcData).map(([key, mat], matrixIndex)=>{
         let colIndexes = Array.from(Array(mat[0].length).keys());
         let colTotals = colIndexes.map(i=>mat.map(r=>r[i])).map(row=>sumRow(row));
         let newMatrix = mat.map(row=>row.map((el, idx)=>(el/colTotals[idx])));
@@ -208,8 +208,9 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     resultContainer.innerHTML = '';
     Object.entries(calcResult).forEach(([key, data])=>{
         let article = document.createElement("article");
+        let title = matrixIndex >= criterias.length ? "Criteria" : criterias[matrixIndex];
         article.innerHTML = `
-            <h4>${key}</h4>
+            <h4>${title}</h4>
             <table class="row-average">
                 <thead>
                     <tr>
