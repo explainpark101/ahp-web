@@ -173,7 +173,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     );
     // calculation result showing
 
-    let calcResult = Object.fromEntries(Object.entries(calcData).map(([key, mat], matrixIndex)=>{
+    let calcResult = Object.fromEntries(Object.entries(calcData).map(([key, mat])=>{
         let colIndexes = Array.from(Array(mat[0].length).keys());
         let colTotals = colIndexes.map(i=>mat.map(r=>r[i])).map(row=>sumRow(row));
         let newMatrix = mat.map(row=>row.map((el, idx)=>(el/colTotals[idx])));
@@ -206,7 +206,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
 
     const resultContainer = document.querySelector(`#step-results`);
     resultContainer.innerHTML = '';
-    Object.entries(calcResult).forEach(([key, data])=>{
+    Object.entries(calcResult).forEach(([key, data], matrixIndex)=>{
         let article = document.createElement("article");
         let title = matrixIndex >= criterias.length ? "Criteria" : criterias[matrixIndex];
         article.innerHTML = `
