@@ -210,9 +210,9 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     resultContainer.innerHTML = '';
     Object.entries(calcResult).forEach(([key, data], matrixIndex)=>{
         let article = document.createElement("article");
-        let title = matrixIndex >= criterias.length ? "Criteria" : criterias[matrixIndex];
+        let title = matrixIndex >= criterias.length ? "Criterias" : criterias[matrixIndex];
         article.innerHTML = `
-            <h4>${title.name}</h4>
+            <h4>${title.name ?? "Criterias"}</h4>
             <table class="row-average">
                 <thead>
                     <tr>
@@ -235,7 +235,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
         tblRowElements = tblRowElements.map(([el, idx])=>{
             let tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${key == "criteria-matrix" ? (criterias[idx]?.name??idx) : (items[idx]?.name??idx)}</td>
+                <td>${key == "criteria-matrix" ? `Criterias` : (items[idx]?.name??idx)}</td>
                 <td>${el}</td>
             `;
             return tr;
