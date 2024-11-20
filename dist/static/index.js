@@ -37,7 +37,7 @@ class Criteria {
         if (this.#nameInputContainer) return this.#nameInputContainer;
         this.#nameInputContainer = document.createElement("div");
         this.#nameInputContainer.innerHTML = `
-            <label for="criteria-name-${this.no}">Item ${this.no} Name</label>
+            <label for="criteria-name-${this.no}">Criteria ${this.no} Name</label>
             <input type="text" id="criteria-name-${this.no}" name="criteria-name-${this.no}" form="step-1-form" />
         `;
         const input = this.#nameInputContainer.querySelector(`input`);
