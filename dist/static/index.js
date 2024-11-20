@@ -397,7 +397,6 @@ const fillInputs = () => {
 (()=>{
     const searchParams = new URLSearchParams(location.search);
     if (!searchParams.get("data")) return;
-    console.log(searchParams.get("data"));
     const dataJsonText = JSON.parse(atob(searchParams.get("data")));
     importResult(dataJsonText);
     history.replaceState({}, null, '');
