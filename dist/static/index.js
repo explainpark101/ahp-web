@@ -289,8 +289,20 @@ const exportResult = () => {
     }));
     saveTextAsFile(JSON.stringify(saveData), `AHP_save.json`);
 }
+const copyResultURL = async () => {
+    let forms = Array.from(document.querySelectorAll("form"));
+    const saveData = Object.fromEntries(forms.map(form=>{
+        let data = Object.fromEntries(Array.from(form.querySelectorAll("[name]")).map(input=>[input.name, input.value]))
+        return [form.id, data];
+    }));
+    await navigator.clipboard.writeText(`${location.toString()}?data=${encodeURIComponent(btoa(JSON.stringify(saveData)))}`);
+    alert("url has been copied!");
+}
 document.querySelector(`#export-data-button`).addEventListener("click", e=>{
     exportResult();
+});
+document.querySelector(`#copy-data-button`).addEventListener("click", e=>{
+    copyResultURL();
 });
 document.querySelector(`#import-data-button`).addEventListener("click", async e=>{
     let data = await new Promise(resolve=>{
@@ -332,6 +344,9 @@ document.querySelector(`#import-data-button`).addEventListener("click", async e=
     const exportedData = JSON.parse(data);
     importResult(exportedData);
 });
+/**
+ * @param { Object } exportedData 
+ */
 const importResult = (exportedData) => {
     Object.entries(exportedData).forEach(([formId, data])=>{
         /** @type {HTMLFormElement} */
@@ -340,7 +355,7 @@ const importResult = (exportedData) => {
             form.querySelector(`[name="${inputName}"]`).value = value;
             form.querySelector(`[name="${inputName}"]`).dispatchEvent(new Event("input"));
         });
-        form.dispatchEvent(new Event("submit"));
+        if (form.reportValidity()) form.dispatchEvent(new Event("submit"));
     });
 }
 function saveTextAsFile(text, filename) {
@@ -378,3 +393,12 @@ const fillInputs = () => {
         });
     })
 }
+
+(()=>{
+    const searchParams = new URLSearchParams(location.search);
+    if (!searchParams.get("data")) return;
+    console.log(searchParams.get("data"));
+    const dataJsonText = JSON.parse(atob(searchParams.get("data")));
+    importResult(dataJsonText);
+    history.replaceState({}, null, '');
+})();
