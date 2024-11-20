@@ -58,10 +58,10 @@ document.querySelector(`form#step-0-setting-form`).addEventListener("submit", e=
     e.preventDefault();
     items = Array.from(Array(+itemCountInput.value).keys()).map(idx=>new Item({number: idx+1, name: `Item ${idx+1}`}));
     criterias = Array.from(Array(+criteriaCountInput.value).keys()).map(idx=>new Criteria({number: idx+1, items}));
-    document.querySelector(`#item-names`).innerHTML = '';
-    items.forEach(item=>document.querySelector(`#item-names`).appendChild(item.nameInput));
-    document.querySelector(`#criteria-names`).innerHTML = '';
-    criterias.forEach(criteria=>document.querySelector(`#criteria-names`).appendChild(criteria.nameInput));
+    document.querySelector(`#item-names .inputs`).innerHTML = '';
+    items.forEach(item=>document.querySelector(`#item-names .inputs`).appendChild(item.nameInput));
+    document.querySelector(`#criteria-names .inputs`).innerHTML = '';
+    criterias.forEach(criteria=>document.querySelector(`#criteria-names .inputs`).appendChild(criteria.nameInput));
     document.querySelector(`form#step-1-form`).classList.remove("d-none");
 });
 document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
