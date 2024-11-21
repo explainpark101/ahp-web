@@ -239,7 +239,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
         tblRowElements = tblRowElements.map(([el, idx])=>{
             let tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${key == "criteria-matrix" ? `Criterias` : (items[idx]?.name??idx)}</td>
+                <td>${key == "criteria-matrix" ? (criterias[idx]?.name??'Criteria '+idx+1) : (items[idx]?.name??'Item '+idx+1)}</td>
                 <td>${el}</td>
             `;
             return tr;
