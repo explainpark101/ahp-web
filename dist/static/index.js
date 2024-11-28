@@ -309,7 +309,10 @@ const copyResultURL = async () => {
         let data = Object.fromEntries(Array.from(form.querySelectorAll("[name]")).map(input=>[input.name, input.value]))
         return [form.id, data];
     }));
-    await navigator.clipboard.writeText(`${location.toString()}?data=${btoa(JSON.stringify(saveData))}`);
+    const jsonString = JSON.stringify(saveData);
+    const b64String = btoa(jsonString);
+    console.log(b64String);
+    await navigator.clipboard.writeText(`${location.origin}?data=${b64String}`);
     alert("url has been copied!");
 }
 document.querySelector(`#export-data-button`).addEventListener("click", e=>{
