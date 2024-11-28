@@ -187,7 +187,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
         let ax = matMul(mat, rowAverage.map(el=>[el])).map(el=>el[0]);
         let lambdaMax = (sumRow(zip(ax, rowAverage).map(([a, b])=>(a/b))) / ax.length);
         const CI = (lambdaMax - ax.length) / (  ax.length - 1);
-        const CR = CI / ({
+        const RI = {
             1: 0,
             2: 0,
             3: .58,
@@ -203,12 +203,14 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
             13: 1.56,
             14: 1.57,
             15: 1.59,
-        }[ax.length]);
+        }[ax.length];
+        const CR = CI / RI;
 
         return [key, {
-            CI, CR, newMatrix, rowAverage, ax, lambdaMax
+            CI, RI, CR, newMatrix, rowAverage, ax, lambdaMax
         }];
     }));
+    console.log(calcResult);
 
     const resultContainer = document.querySelector(`#step-results`);
     resultContainer.innerHTML = '';
