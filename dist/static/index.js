@@ -114,6 +114,16 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
                 const [criteriaNo, item1No, item2No] = inputName.split("__");
                 // 대소비교 하는 거 추가해줘야함. 
                 container.querySelector(`input[name="${criteriaNo}__${item2No}__${item1No}"]`).value = 1 / (+e.target.value);
+
+                if (!Array.from(container.querySelectorAll("input")).find(el=>el.value == 0)) {
+                    const [tmp, { CR }] = calculateMatrix("", (matContainer => {
+                        let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
+                            return Array.from(tr.querySelectorAll("input")).map(el=>+el.value)
+                        });
+                        return values;
+                    })(container));
+                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : ''}</b>`;
+                }
             });
             
         });
@@ -164,6 +174,39 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
     })();
     document.querySelector(`form#step-2-form`).classList.remove("d-none");
 });
+
+const calculateMatrix = (key, mat) => {
+    let colIndexes = Array.from(Array(mat[0].length).keys());
+    let colTotals = colIndexes.map(i=>mat.map(r=>r[i])).map(row=>sumRow(row));
+    let newMatrix = mat.map(row=>row.map((el, idx)=>(el/colTotals[idx])));
+    let rowAverage = newMatrix.map(el=>sumRow(el)/el.length);
+    let ax = matMul(mat, rowAverage.map(el=>[el])).map(el=>el[0]);
+    let lambdaMax = (sumRow(zip(ax, rowAverage).map(([a, b])=>(a/b))) / ax.length);
+    const CI = (lambdaMax - ax.length) / (  ax.length - 1);
+    const RI = {
+        1: 0,
+        2: 0,
+        3: .58,
+        4: .90,
+        5: 1.12,
+        6: 1.24,
+        7: 1.32,
+        8: 1.41,
+        9: 1.45,
+        10: 1.49,
+        11: 1.51,
+        12: 1.48,
+        13: 1.56,
+        14: 1.57,
+        15: 1.59,
+    }[ax.length];
+    const CR = CI / RI;
+
+    return [key, {
+        CI, RI, CR, newMatrix, rowAverage, ax, lambdaMax
+    }];
+}
+
 let calcData;
 document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     e.preventDefault();
@@ -178,38 +221,12 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
         })
     );
     // calculation result showing
-
-    let calcResult = Object.fromEntries(Object.entries(calcData).map(([key, mat])=>{
-        let colIndexes = Array.from(Array(mat[0].length).keys());
-        let colTotals = colIndexes.map(i=>mat.map(r=>r[i])).map(row=>sumRow(row));
-        let newMatrix = mat.map(row=>row.map((el, idx)=>(el/colTotals[idx])));
-        let rowAverage = newMatrix.map(el=>sumRow(el)/el.length);
-        let ax = matMul(mat, rowAverage.map(el=>[el])).map(el=>el[0]);
-        let lambdaMax = (sumRow(zip(ax, rowAverage).map(([a, b])=>(a/b))) / ax.length);
-        const CI = (lambdaMax - ax.length) / (  ax.length - 1);
-        const RI = {
-            1: 0,
-            2: 0,
-            3: .58,
-            4: .90,
-            5: 1.12,
-            6: 1.24,
-            7: 1.32,
-            8: 1.41,
-            9: 1.45,
-            10: 1.49,
-            11: 1.51,
-            12: 1.48,
-            13: 1.56,
-            14: 1.57,
-            15: 1.59,
-        }[ax.length];
-        const CR = CI / RI;
-
-        return [key, {
-            CI, RI, CR, newMatrix, rowAverage, ax, lambdaMax
-        }];
-    }));
+     
+    let calcResult = Object.fromEntries(
+        Object.entries(calcData).map(([key, mat])=>{
+            return calculateMatrix(key, mat);
+        })
+    );
     console.log(calcResult);
 
     const resultContainer = document.querySelector(`#step-results`);
