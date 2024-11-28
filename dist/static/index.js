@@ -122,7 +122,7 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
                         });
                         return values;
                     })(container));
-                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : ''}</b>`;
+                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : CR >= .9 ? '<red>Untrustworthy</red>' :''}</b>`;
                 }
             });
             

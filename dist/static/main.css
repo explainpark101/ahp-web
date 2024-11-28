@@ -2447,3 +2447,7 @@ input[readonly] {
 .d-none {
   display: none;
 }
+
+red {
+  color: red;
+}
