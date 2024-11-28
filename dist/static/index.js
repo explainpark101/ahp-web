@@ -105,16 +105,17 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
                     ${tableRowHTML}
                 </tr>
             `);
-            const errorSpan = container.querySelector(`small`);
             container.addEventListener("input", e=>{
                 /** @type { HTMLInputElement } */
                 const input = e.target;
                 const inputName = e.target.name;
+                if (!inputName) return;
                 input.reportValidity();
                 const [criteriaNo, item1No, item2No] = inputName.split("__");
                 // 대소비교 하는 거 추가해줘야함. 
                 container.querySelector(`input[name="${criteriaNo}__${item2No}__${item1No}"]`).value = 1 / (+e.target.value);
-
+            });
+            container.addEventListener("input", e=>{
                 if (!Array.from(container.querySelectorAll("input")).find(el=>el.value == 0)) {
                     const [tmp, { CR }] = calculateMatrix("", (matContainer => {
                         let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
@@ -135,6 +136,7 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
         container.id = `criteria-matrix`;
         container.innerHTML = `
             <h5>Criteria Matrix</h5>
+            <small></small>
             <table>
                 <thead>
                     <tr>
@@ -166,8 +168,20 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
             `);
             container.addEventListener("input", e=>{
                 const inputName = e.target.name;
+                if (!inputName) return;
                 const [criteria1No, criteria2No] = inputName.split("__");
                 container.querySelector(`input[name="${criteria2No}__${criteria1No}"]`).value = 1 / (+e.target.value);
+            });
+            container.addEventListener("input", e=>{
+                if (!Array.from(container.querySelectorAll("input")).find(el=>el.value == 0)) {
+                    const [tmp, { CR }] = calculateMatrix("", (matContainer => {
+                        let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
+                            return Array.from(tr.querySelectorAll("input")).map(el=>+el.value)
+                        });
+                        return values;
+                    })(container));
+                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : CR >= .9 ? '<red>Untrustworthy</red>' :''}</b>`;
+                }
             });
             return container
         }).forEach(el=>contentContainer.appendChild(el));
@@ -390,7 +404,9 @@ const importResult = (exportedData) => {
             form.querySelector(`[name="${inputName}"]`).dispatchEvent(new Event("input"));
         });
         if (form.reportValidity()) form.dispatchEvent(new Event("submit"));
+
     });
+    document.querySelectorAll(".data-matrix").forEach(matrix=>matrix.dispatchEvent(new Event("input")));
 }
 function saveTextAsFile(text, filename) {
     // Create a Blob object with the text data
