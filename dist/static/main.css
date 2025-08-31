@@ -2445,9 +2445,470 @@ input[readonly] {
 }
 
 .d-none {
-  display: none;
+  display: none !important;
 }
 
 red {
   color: red;
+}
+
+/* CI/CR 표지 스타일 */
+.ci-cr-summary {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.ci-cr-summary h4 {
+  color: #495057;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.consistency-indicators {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.indicator-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.indicator-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.indicator-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.indicator-status {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.indicator-status.trustworthy {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.indicator-status.acceptable {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.indicator-status.untrustworthy {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.consistency-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #dee2e6;
+}
+
+.legend-color.trustworthy {
+  background: #d4edda;
+}
+
+.legend-color.acceptable {
+  background: #fff3cd;
+}
+
+.legend-color.untrustworthy {
+  background: #f8d7da;
+}
+
+/* 기존 CI/CR 데이터 스타일 개선 */
+.ci-cr-data {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.ci-cr-data li {
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  font-weight: 600;
+}
+
+.list-ci {
+  color: #495057;
+}
+
+.list-cr {
+  color: #495057;
+}
+
+.list-cr b {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 기존 CR 상태 스타일은 제거하고 새로운 상태 클래스 사용 */
+
+/* 상태별 스타일 */
+.status-trustworthy {
+  background: #d4edda !important;
+  color: #155724 !important;
+  border: 1px solid #c3e6cb !important;
+}
+
+.status-acceptable {
+  background: #fff3cd !important;
+  color: #856404 !important;
+  border: 1px solid #ffeaa7 !important;
+}
+
+.status-untrustworthy {
+  background: #f8d7da !important;
+  color: #721c24 !important;
+  border: 1px solid #f5c6cb !important;
+}
+
+.d-none {
+  display: none !important;
+}
+
+/* 점수 입력 가이드라인 스타일 */
+.scoring-guidelines {
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.scoring-guidelines h5 {
+  color: #1976d2;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.guidelines-content p {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.score-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.score-number {
+  background: #2196f3;
+  color: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* 분수값 스타일 */
+.score-item.fractional .score-number {
+  background: #ff9800;
+  color: white;
+}
+
+.score-item.fractional {
+  background: #fff3e0;
+  border-color: #ffb74d;
+}
+
+.score-description {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.3;
+}
+
+.guidelines-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 0.75rem;
+}
+
+/* 결과 요약 스타일 */
+.results-summary {
+  background: #f3e5f5;
+  border: 1px solid #9c27b0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.results-summary h4 {
+  color: #7b1fa2;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.best-item-section h5 {
+  color: #6a1b9a;
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+}
+
+.best-item-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e1bee7;
+}
+
+.best-item-label {
+  font-weight: 600;
+  color: #6a1b9a;
+  font-size: 0.9rem;
+}
+
+.best-item-name {
+  background: #9c27b0;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.best-item-score {
+  background: #e1bee7;
+  color: #6a1b9a;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* 점수 선택 드롭다운 스타일
+.score-select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 0.9rem;
+  min-width: 150px;
+}
+
+.score-select:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+.score-select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ddd;
+}
+
+/* 최종 결론 카드 스타일 */
+.final-conclusion {
+  background: #e8f5e8;
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.final-conclusion h4 {
+  color: #2e7d32;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.conclusion-explanation {
+  background: white;
+  border: 1px solid #c8e6c9;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.conclusion-explanation p {
+  margin: 0.5rem 0;
+  color: #2e7d32;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.conclusion-explanation strong {
+  color: #1b5e20;
+  font-weight: 600;
+}
+
+.weighted-scores-table {
+  margin-bottom: 1.5rem;
+}
+
+.weighted-scores-table h5 {
+  color: #2e7d32;
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+}
+
+.weighted-scores-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #c8e6c9;
+}
+
+.weighted-scores-table th,
+.weighted-scores-table td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #e8f5e8;
+}
+
+.weighted-scores-table th {
+  background: #4caf50;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.weighted-scores-table td {
+  color: #2e7d32;
+  font-size: 0.9rem;
+}
+
+.weighted-scores-table tbody tr:nth-child(even) {
+  background: #f1f8e9;
+}
+
+.weighted-scores-table tbody tr:hover {
+  background: #e8f5e8;
+}
+
+.conclusion-summary {
+  background: white;
+  border: 1px solid #c8e6c9;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.best-worst-items {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.best-item,
+.worst-item {
+  flex: 1;
+  text-align: center;
+}
+
+.best-item h6,
+.worst-item h6 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.item-name {
+  background: #4caf50;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.worst-item .item-name {
+  background: #f44336;
+}
+
+.item-score {
+  background: #c8e6c9;
+  color: #2e7d32;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.worst-item .item-score {
+  background: #ffcdd2;
+  color: #c62828;
 }

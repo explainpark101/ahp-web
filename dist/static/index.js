@@ -89,13 +89,25 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
             let tableRowHTML = criteria.items.map((el) =>{
                 if (el.no == item.no) return `
                     <td>
-                        <input form="step-2-form" name="criteria-${criteria.number}__item-${el.no}__item-${item.no}" type="number" value="1" readonly="readonly"/>
+                        <select form="step-2-form" name="criteria-${criteria.number}__item-${el.no}__item-${item.no}" class="score-select" disabled>
+                            <option value="1" selected>1 - 동등한 중요도</option>
+                        </select>
                     </td>
                 `
                 return `
                     <td>
-                        <input form="step-2-form" name="criteria-${criteria.number}__item-${el.no}__item-${item.no}" type="number" step="any"
-                            value="0" min="0.1" max="9" pattern="(0\.\d+)|[2-9]"/>
+                        <select form="step-2-form" name="criteria-${criteria.number}__item-${el.no}__item-${item.no}" class="score-select">
+                            <option value="">선택하세요</option>
+                            <option value="9">9 - 극도로 더 중요</option>
+                            <option value="7">7 - 매우 더 중요</option>
+                            <option value="5">5 - 훨씬 더 중요</option>
+                            <option value="3">3 - 약간 더 중요</option>
+                            <option value="1">1 - 동등한 중요도</option>
+                            <option value="0.3333">1/3 - 약간 덜 중요</option>
+                            <option value="0.2">1/5 - 훨씬 덜 중요</option>
+                            <option value="0.1429">1/7 - 매우 덜 중요</option>
+                            <option value="0.1111">1/9 - 극도로 덜 중요</option>
+                        </select>
                     </td>
                 `
             }).join("\n");
@@ -105,28 +117,50 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
                     ${tableRowHTML}
                 </tr>
             `);
-            container.addEventListener("input", e=>{
-                /** @type { HTMLInputElement } */
-                const input = e.target;
+            container.addEventListener("change", e=>{
+                /** @type { HTMLSelectElement } */
+                const select = e.target;
                 const inputName = e.target.name;
-                if (!inputName) return;
-                input.reportValidity();
+                if (!inputName || !select.value) return;
                 const [criteriaNo, item1No, item2No] = inputName.split("__");
-                // 대소비교 하는 거 추가해줘야함. 
-                container.querySelector(`input[name="${criteriaNo}__${item2No}__${item1No}"]`).value = 1 / (+e.target.value);
+                // 대소비교 하는 거 추가해줘야함.
+                const oppositeSelect = container.querySelector(`select[name="${criteriaNo}__${item2No}__${item1No}"]`);
+                if (oppositeSelect) {
+                    const oppositeValue = {
+                        9: 0.1111,
+                        7: 0.1429,
+                        5: 0.2,
+                        3: 0.3333,
+                        1: 1,
+                        0.3333: 3,
+                        0.2: 5,
+                        0.1429: 7,
+                        0.1111: 9,
+                    }[+e.target.value];
+
+                    oppositeSelect.value = oppositeValue;
+                }
             });
-            container.addEventListener("input", e=>{
-                if (!Array.from(container.querySelectorAll("input")).find(el=>el.value == 0)) {
+            container.addEventListener("change", e=>{
+                if (!Array.from(container.querySelectorAll("select")).find(el=>!el.value)) {
                     const [tmp, { CR }] = calculateMatrix("", (matContainer => {
                         let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
-                            return Array.from(tr.querySelectorAll("input")).map(el=>+el.value)
+                            return Array.from(tr.querySelectorAll("select")).map(el=>+el.value)
                         });
                         return values;
                     })(container));
-                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : CR >= .9 ? '<red>Untrustworthy</red>' :''}</b>`;
+                    let crStatus = '';
+                    if (CR <= 0.1) {
+                        crStatus = '<b class="status-trustworthy">신뢰할 수 있음</b>';
+                    } else if (CR >= 0.9) {
+                        crStatus = '<b class="status-untrustworthy">신뢰할 수 없음</b>';
+                    } else {
+                        crStatus = '<b class="status-acceptable">허용 가능</b>';
+                    }
+                    container.querySelector("small").innerHTML = `CR: ${CR.toFixed(4)} ${crStatus}`;
                 }
             });
-            
+
         });
         return container;
     }).forEach(el=>contentContainer.appendChild(el));
@@ -151,12 +185,25 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
             let tableRowHTML = criterias.map((el) =>{
                 if (el.no == criteria1.no) return `
                     <td>
-                        <input form="step-2-form" name="criteria-${el.no}__criteria-${criteria1.no}" type="number" value="1" readonly="readonly"/>
+                        <select form="step-2-form" name="criteria-${el.no}__criteria-${criteria1.no}" class="score-select" disabled>
+                            <option value="1" selected>1 - 동등한 중요도</option>
+                        </select>
                     </td>
                 `
                 return `
                     <td>
-                        <input form="step-2-form" name="criteria-${el.no}__criteria-${criteria1.no}" type="number" value="0" min="0.1" max="9" step="any" pattern="(0\.\d+)|[2-9]"/>
+                        <select form="step-2-form" name="criteria-${el.no}__criteria-${criteria1.no}" class="score-select">
+                            <option value="">선택하세요</option>
+                            <option value="9">9 - 극도로 더 중요</option>
+                            <option value="7">7 - 매우 더 중요</option>
+                            <option value="5">5 - 훨씬 더 중요</option>
+                            <option value="3">3 - 약간 더 중요</option>
+                            <option value="1">1 - 동등한 중요도</option>
+                            <option value="0.3333">1/3 - 약간 덜 중요</option>
+                            <option value="0.2">1/5 - 훨씬 덜 중요</option>
+                            <option value="0.1429">1/7 - 매우 덜 중요</option>
+                            <option value="0.1111">1/9 - 극도로 덜 중요</option>
+                        </select>
                     </td>
                 `
             }).join("\n");
@@ -166,23 +213,46 @@ document.querySelector(`form#step-1-form`).addEventListener("submit", e=>{
                     ${tableRowHTML}
                 </tr>
             `);
-            container.addEventListener("input", e=>{
+            container.addEventListener("change", e=>{
                 const inputName = e.target.name;
-                if (!inputName) return;
+                if (!inputName || !e.target.value) return;
                 const [criteria1No, criteria2No] = inputName.split("__");
-                container.querySelector(`input[name="${criteria2No}__${criteria1No}"]`).value = 1 / (+e.target.value);
+                const oppositeSelect = container.querySelector(`select[name="${criteria2No}__${criteria1No}"]`);
+                if (oppositeSelect) {
+                    const oppositeValue = {
+                        9: 0.1111,
+                        7: 0.1429,
+                        5: 0.2,
+                        3: 0.3333,
+                        1: 1,
+                        0.3333: 3,
+                        0.2: 5,
+                        0.1429: 7,
+                        0.1111: 9,
+                    }[+e.target.value];
+
+                    oppositeSelect.value = oppositeValue;
+                }
             });
-            container.addEventListener("input", e=>{
-                if (!Array.from(container.querySelectorAll("input")).find(el=>el.value == 0)) {
+            container.addEventListener("change", e=>{
+                if (!Array.from(container.querySelectorAll("select")).find(el=>!el.value)) {
                     const [tmp, { CR }] = calculateMatrix("", (matContainer => {
                         let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
-                            return Array.from(tr.querySelectorAll("input")).map(el=>+el.value)
+                            return Array.from(tr.querySelectorAll("select")).map(el=>+el.value)
                         });
                         return values;
                     })(container));
-                    container.querySelector("small").innerHTML = `CR: ${CR} <b>${CR <= .1 ? "Trustworthy" : CR >= .9 ? '<red>Untrustworthy</red>' :''}</b>`;
-                }
-            });
+                    let crStatus = '';
+                    if (CR <= 0.1) {
+                        crStatus = '<b class="status-acceptable">신뢰할 수 있음</b>';
+                    } else if (CR >= 0.9) {
+                        crStatus = '<b class="status-untrustworthy">신뢰할 수 없음</b>';
+                    } else {
+                        crStatus = '<b class="status-acceptable">허용 가능</b>';
+                    }
+                    container.querySelector("small").innerHTML = `CR: ${CR.toFixed(4)} ${crStatus}`;
+                    }
+                });
             return container
         }).forEach(el=>contentContainer.appendChild(el));
     })();
@@ -224,18 +294,29 @@ const calculateMatrix = (key, mat) => {
 let calcData;
 document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
     e.preventDefault();
+
+    // 모든 select 요소가 값을 가지고 있는지 확인
+    const allSelects = document.querySelectorAll('.score-select');
+    const emptySelects = Array.from(allSelects).filter(select => !select.value);
+
+    if (emptySelects.length > 0) {
+        alert('모든 비교 항목에 점수를 입력해주세요.');
+        emptySelects[0].focus();
+        return;
+    }
+
     const matrixArray = Array.from(document.querySelectorAll(`.data-matrix`));
     calcData = Object.fromEntries(
         matrixArray.map(matContainer => {
             let id = matContainer.id;
             let values = Array.from(matContainer.querySelectorAll("tbody tr")).map(tr=>{
-                return Array.from(tr.querySelectorAll("input")).map(el=>+el.value)
+                return Array.from(tr.querySelectorAll("select")).map(el=>+el.value)
             });
             return [id, values];
         })
     );
     // calculation result showing
-     
+
     let calcResult = Object.fromEntries(
         Object.entries(calcData).map(([key, mat])=>{
             return calculateMatrix(key, mat);
@@ -245,6 +326,13 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
 
     const resultContainer = document.querySelector(`#step-results`);
     resultContainer.innerHTML = '';
+
+    // CI/CR 표지 업데이트
+    updateCICRSummary(calcResult);
+
+    // 결과 요약 업데이트
+    updateResultsSummary(calcResult);
+
     Object.entries(calcResult).forEach(([key, data], matrixIndex)=>{
         let article = document.createElement("article");
         let title = matrixIndex >= criterias.length ? "Criterias" : criterias[matrixIndex];
@@ -260,11 +348,21 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
                 <tbody></tbody>
             </table>
             <ul class="ci-cr-data">
-                <li class="list-ci">CI: ${data.CI}</li> 
-                <li class="list-cr">CR: ${data.CR} </li>
+                <li class="list-ci">CI: ${data.CI.toFixed(4)}</li>
+                <li class="list-cr">CR: ${data.CR.toFixed(4)} </li>
             </ul>
         `;
-        article.querySelector(`.list-cr`).insertAdjacentHTML("beforeEnd", data.CR >= .9 ? "<b>Untrustworthy</b>" : data.CR <= .1 ? "<b>TrustWorthy</b>" : '');
+
+        // CR 상태에 따른 스타일 적용
+        let crStatus = '';
+        if (data.CR <= 0.1) {
+            crStatus = '<b class="status-trustworthy">신뢰할 수 있음</b>';
+        } else if (data.CR >= 0.9) {
+            crStatus = '<b class="status-untrustworthy">신뢰할 수 없음</b>';
+        } else {
+            crStatus = '<b class="status-acceptable">허용 가능</b>';
+        }
+        article.querySelector(`.list-cr`).insertAdjacentHTML("beforeEnd", crStatus);
 
         let tblRowElements = data.rowAverage
         .map((el, idx)=>[el, idx]);
@@ -273,7 +371,7 @@ document.querySelector(`form#step-2-form`).addEventListener("submit", e=>{
             let tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${key == "criteria-matrix" ? (criterias[idx]?.name??'Criteria '+idx+1) : (items[idx]?.name??'Item '+idx+1)}</td>
-                <td>${el}</td>
+                <td>${el.toFixed(4)}</td>
             `;
             return tr;
         });
@@ -288,15 +386,231 @@ function zip(arr1, arr2) {
 }
 
 /**
- * @param { String } chr 
- * @param { Number } iterCount 
+ * CI/CR 표지 요약을 업데이트하는 함수
+ * @param {Object} calcResult - 계산 결과 데이터
+ */
+function updateCICRSummary(calcResult) {
+    const summaryContainer = document.querySelector('#ci-cr-summary');
+    if (!summaryContainer) return;
+
+    // 모든 매트릭스의 CI/CR 값 수집
+    let allCI = [];
+    let allCR = [];
+
+    Object.values(calcResult).forEach(data => {
+        allCI.push(data.CI);
+        allCR.push(data.CR);
+    });
+
+    // 평균 CI/CR 계산
+    const avgCI = allCI.reduce((sum, ci) => sum + ci, 0) / allCI.length;
+    const avgCR = allCR.reduce((sum, cr) => sum + cr, 0) / allCR.length;
+
+    // CI 상태 결정
+    let ciStatus = '';
+    let ciStatusClass = '';
+    if (avgCI <= 0.1) {
+        ciStatus = '낮음 (좋음)';
+        ciStatusClass = 'trustworthy';
+    } else if (avgCI <= 0.2) {
+        ciStatus = '보통';
+        ciStatusClass = 'acceptable';
+    } else {
+        ciStatus = '높음 (주의)';
+        ciStatusClass = 'untrustworthy';
+    }
+
+    // CR 상태 결정
+    let crStatus = '';
+    let crStatusClass = '';
+    if (avgCR <= 0.1) {
+        crStatus = '신뢰할 수 있음';
+        crStatusClass = 'trustworthy';
+    } else if (avgCR < 0.9) {
+        crStatus = '허용 가능';
+        crStatusClass = 'acceptable';
+    } else {
+        crStatus = '신뢰할 수 없음';
+        crStatusClass = 'untrustworthy';
+    }
+
+    // 표지 업데이트
+    const ciValueElement = document.querySelector('#ci-value');
+    const ciStatusElement = document.querySelector('#ci-status');
+    const crValueElement = document.querySelector('#cr-value');
+    const crStatusElement = document.querySelector('#cr-status');
+
+    if (ciValueElement) ciValueElement.textContent = avgCI.toFixed(4);
+    if (ciStatusElement) {
+        ciStatusElement.textContent = ciStatus;
+        ciStatusElement.className = `indicator-status ${ciStatusClass}`;
+    }
+
+    if (crValueElement) crValueElement.textContent = avgCR.toFixed(4);
+    if (crStatusElement) {
+        crStatusElement.textContent = crStatus;
+        crStatusElement.className = `indicator-status ${crStatusClass}`;
+    }
+
+    // 표지 표시
+    summaryContainer.classList.remove('d-none');
+}
+
+function updateResultsSummary(calcResult) {
+    const summaryContainer = document.querySelector('#results-summary');
+    if (!summaryContainer) return;
+
+    // criteria-matrix에서 가장 높은 우선순위를 가진 기준 찾기
+    const criteriaMatrix = calcResult['criteria-matrix'];
+    if (!criteriaMatrix || !criteriaMatrix.rowAverage) return;
+
+    let bestCriteriaIndex = 0;
+    let bestCriteriaScore = criteriaMatrix.rowAverage[0];
+
+    criteriaMatrix.rowAverage.forEach((score, index) => {
+        if (score > bestCriteriaScore) {
+            bestCriteriaScore = score;
+            bestCriteriaIndex = index;
+        }
+    });
+
+    // 각 기준별로 가장 높은 우선순위를 가진 항목 찾기
+    let bestItemName = '';
+    let bestItemScore = 0;
+
+    Object.entries(calcResult).forEach(([key, data]) => {
+        if (key !== 'criteria-matrix' && data.rowAverage) {
+            data.rowAverage.forEach((score, index) => {
+                if (score > bestItemScore) {
+                    bestItemScore = score;
+                    bestItemName = items[index]?.name || `Item ${index + 1}`;
+                }
+            });
+        }
+    });
+
+    // 결과 업데이트
+    const bestItemNameElement = document.querySelector('#best-item-name');
+    const bestItemScoreElement = document.querySelector('#best-item-score');
+
+    if (bestItemNameElement) bestItemNameElement.textContent = bestItemName;
+    if (bestItemScoreElement) bestItemScoreElement.textContent = bestItemScore.toFixed(4);
+
+    // summaryContainer.classList.remove('d-none');
+
+    // 최종 결론 카드 업데이트
+    updateFinalConclusion(calcResult);
+}
+
+/**
+ * 최종 결론 카드를 업데이트하는 함수
+ * @param {Object} calcResult - 계산 결과
+ */
+function updateFinalConclusion(calcResult) {
+    const finalConclusionContainer = document.querySelector('#final-conclusion');
+
+    // criteria-matrix에서 기준별 중요도 가져오기
+    const criteriaMatrix = calcResult['criteria-matrix'];
+    if (!criteriaMatrix || !criteriaMatrix.rowAverage) return;
+
+    // 각 항목별로 가중 점수 계산
+    const weightedScores = [];
+
+    // 기준별 가중치 가져오기
+    const criteriaWeights = criteriaMatrix.rowAverage;
+
+    // 각 항목별로 가중 점수 계산 (한 번만)
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+        const itemName = items[itemIndex]?.name || `Item ${itemIndex + 1}`;
+        let totalWeightedScore = 0;
+
+        // 각 기준별로 가중 점수 계산
+        criteriaWeights.forEach((weight, index) => {
+            totalWeightedScore += weight * calcResult[`criteria-${index+1}`].rowAverage[itemIndex];
+        });
+
+        weightedScores.push({
+            name: itemName,
+            score: totalWeightedScore,
+            itemIndex: itemIndex
+        });
+    }
+
+    // 가중 점수로 정렬 (높은 순서대로)
+    weightedScores.sort((a, b) => b.score - a.score);
+
+    // 가중 점수 테이블 업데이트
+    const tbody = document.querySelector('#weighted-scores-tbody');
+    if (tbody) {
+        tbody.innerHTML = '';
+
+        weightedScores.forEach((item, index) => {
+            const row = document.createElement('tr');
+
+            // 순위
+            const rankCell = document.createElement('td');
+            rankCell.textContent = index + 1;
+            row.appendChild(rankCell);
+
+            // 항목명
+            const nameCell = document.createElement('td');
+            nameCell.textContent = item.name;
+            row.appendChild(nameCell);
+
+            // 가중 점수
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = item.score.toFixed(4);
+            row.appendChild(scoreCell);
+
+            // 평가
+            const evaluationCell = document.createElement('td');
+            if (index === 0) {
+                evaluationCell.textContent = '🏆 최고';
+                evaluationCell.style.color = '#2e7d32';
+                evaluationCell.style.fontWeight = 'bold';
+            } else if (index === weightedScores.length - 1) {
+                evaluationCell.textContent = '⚠️ 최하';
+                evaluationCell.style.color = '#c62828';
+                evaluationCell.style.fontWeight = 'bold';
+            } else {
+                evaluationCell.textContent = '보통';
+            }
+            row.appendChild(evaluationCell);
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // 최고/최하 항목 정보 업데이트
+    if (weightedScores.length > 0) {
+        const bestItem = weightedScores[0];
+        const worstItem = weightedScores[weightedScores.length - 1];
+
+        const finalBestName = document.querySelector('#final-best-name');
+        const finalBestScore = document.querySelector('#final-best-score');
+        const finalWorstName = document.querySelector('#final-worst-name');
+        const finalWorstScore = document.querySelector('#final-worst-score');
+
+        if (finalBestName) finalBestName.textContent = bestItem.name;
+        if (finalBestScore) finalBestScore.textContent = bestItem.score.toFixed(4);
+        if (finalWorstName) finalWorstName.textContent = worstItem.name;
+        if (finalWorstScore) finalWorstScore.textContent = worstItem.score.toFixed(4);
+    }
+
+    // 최종 결론 카드 표시
+    finalConclusionContainer.classList.remove('d-none');
+}
+
+/**
+ * @param { String } chr
+ * @param { Number } iterCount
  * @returns { String }
  */
 const repeatChr = (chr, iterCount) => Array.from(Array(iterCount).keys()).map(el=>chr).join("");
-  
+
 const sumRow = array1d => array1d.reduce((acc, cur) => (acc+cur), 0);
 /**
- * @param {HTMLTableElement} tbl 
+ * @param {HTMLTableElement} tbl
  */
 const matMul = (mat1, mat2) => {
     // Check if multiplication is possible (number of columns in A must equal number of rows in B)
@@ -305,7 +619,7 @@ const matMul = (mat1, mat2) => {
     }
 
     const result = [];
-    
+
     // Initialize the result matrix with zeros
     for (let i = 0; i < mat1.length; i++) {
         result[i] = [];
@@ -355,19 +669,19 @@ document.querySelector(`#copy-data-button`).addEventListener("click", e=>{
 document.querySelector(`#import-data-button`).addEventListener("click", async e=>{
     let data = await new Promise(resolve=>{
         let textData = '';
-    
+
         // Create an invisible file input element dynamically
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.json';  // Optional: specify file types (e.g., only .txt files)
-    
+
         // Callback function for file selection event
         function handleFileSelect(event) {
           const file = event.target.files[0];  // Get the selected file
-    
+
           if (file) {
             const reader = new FileReader();  // Create a new FileReader instance
-    
+
             // Callback function for file read success
             reader.onload = function(e) {
               // The file content will be available in e.target.result
@@ -375,17 +689,17 @@ document.querySelector(`#import-data-button`).addEventListener("click", async e=
               fileInput.remove();
               resolve(textData);
             };
-    
+
             // Read the file as text (UTF-8 encoded)
             reader.readAsText(file);
           } else {
             alert('Please select a file.');
           }
         }
-    
+
         // Set up the event listener for file selection
         fileInput.addEventListener('change', handleFileSelect);
-    
+
         // Trigger the file dialog when the button is clicked
         fileInput.click();
     });
@@ -393,7 +707,7 @@ document.querySelector(`#import-data-button`).addEventListener("click", async e=
     importResult(exportedData);
 });
 /**
- * @param { Object } exportedData 
+ * @param { Object } exportedData
  */
 const importResult = (exportedData) => {
     Object.entries(exportedData).forEach(([formId, data])=>{
@@ -411,26 +725,26 @@ const importResult = (exportedData) => {
 function saveTextAsFile(text, filename) {
     // Create a Blob object with the text data
     const blob = new Blob([text], { type: 'text/plain' });
-    
+
     // Create a temporary URL for the Blob object
     const url = URL.createObjectURL(blob);
-    
+
     // Create a temporary anchor element
     const link = document.createElement('a');
-    
+
     // Set the download attribute with the filename
     link.download = filename;
-    
+
     // Set the href attribute to the Blob URL
     link.href = url;
-    
+
     // Programmatically click the link to trigger the download
     link.click();
-    
+
     // Clean up the Blob URL after the download
     URL.revokeObjectURL(url);
   }
-  
+
 
 const fillInputs = () => {
     document.querySelectorAll(`form#step-2-form .data-matrix`).forEach(dataMatrixContainer => {

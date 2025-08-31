@@ -73,6 +73,51 @@
                     fold
                 </label>
             </div>
+            <div id="scoring-guidelines" class="scoring-guidelines">
+                <h5>점수 입력 가이드라인</h5>
+                <div class="guidelines-content">
+                    <p>AHP에서는 다음의 9점 척도를 사용합니다:</p>
+                    <div class="score-values">
+                        <div class="score-item">
+                            <span class="score-number">9</span>
+                            <span class="score-description">극도로 더 중요 (Extreme importance)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-number">7</span>
+                            <span class="score-description">매우 더 중요 (Very strong importance)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-number">5</span>
+                            <span class="score-description">훨씬 더 중요 (Strong importance)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-number">3</span>
+                            <span class="score-description">약간 더 중요 (Moderate importance)</span>
+                        </div>
+                        <div class="score-item">
+                            <span class="score-number">1</span>
+                            <span class="score-description">동등한 중요도 (Equal importance)</span>
+                        </div>
+                        <div class="score-item fractional">
+                            <span class="score-number">1/3</span>
+                            <span class="score-description">약간 덜 중요 (Moderate unimportance)</span>
+                        </div>
+                        <div class="score-item fractional">
+                            <span class="score-number">1/5</span>
+                            <span class="score-description">훨씬 덜 중요 (Strong unimportance)</span>
+                        </div>
+                        <div class="score-item fractional">
+                            <span class="score-number">1/7</span>
+                            <span class="score-description">매우 덜 중요 (Very strong unimportance)</span>
+                        </div>
+                        <div class="score-item fractional">
+                            <span class="score-number">1/9</span>
+                            <span class="score-description">극도로 덜 중요 (Extreme unimportance)</span>
+                        </div>
+                    </div>
+                    <p class="guidelines-note">※ 중간값 2, 4, 6, 8과 분수값 1/2, 1/4, 1/6, 1/8은 필요시 사용할 수 있습니다.</p>
+                </div>
+            </div>
             <form method="post" id="step-2-form" class="d-none">
                 <div class="contents"></div>
                 <button type="submit" form="step-2-form">Calculate Matrix</button>
@@ -85,7 +130,92 @@
             <span>process view is not on development</span>
         </article>
         <article id="step-results">
+
+
+        </article>
+        <article id="final-result">
             <!-- Results -->
+            <div id="ci-cr-summary" class="ci-cr-summary d-none">
+                <h4>일관성 지표 요약</h4>
+                <div class="consistency-indicators">
+                    <div class="indicator-item">
+                        <span class="indicator-label">CI (Consistency Index)</span>
+                        <span class="indicator-value" id="ci-value">-</span>
+                        <span class="indicator-status" id="ci-status">-</span>
+                    </div>
+                    <div class="indicator-item">
+                        <span class="indicator-label">CR (Consistency Ratio)</span>
+                        <span class="indicator-value" id="cr-value">-</span>
+                        <span class="indicator-status" id="cr-status">-</span>
+                    </div>
+                </div>
+                <div class="consistency-legend">
+                    <div class="legend-item">
+                        <span class="legend-color trustworthy"></span>
+                        <span>신뢰할 수 있음 (CR ≤ 0.1)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color acceptable"></span>
+                        <span>허용 가능 (0.1 < CR < 0.9)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color untrustworthy"></span>
+                        <span>신뢰할 수 없음 (CR ≥ 0.9)</span>
+                    </div>
+                </div>
+            </div>
+            <div id="results-summary" class="results-summary d-none">
+                <h4>결과 요약</h4>
+                <div class="best-item-section">
+                    <h5>가장 좋은 항목</h5>
+                    <div class="best-item-display">
+                        <span class="best-item-label">종합 우선순위 1위:</span>
+                        <span class="best-item-name" id="best-item-name">-</span>
+                        <span class="best-item-score" id="best-item-score">-</span>
+                    </div>
+                </div>
+            </div>
+            <div id="final-conclusion" class="final-conclusion d-none">
+                <h4>최종 결론</h4>
+                <div class="conclusion-explanation">
+                    <p>이 표는 각 항목의 가중 점수를 보여줍니다. 가중 점수는 <strong>기준의 중요도</strong>와 <strong>해당 기준에서의 항목 우선순위</strong>를 곱한 값입니다.</p>
+                    <p>가중 점수가 높을수록 해당 항목이 전체적으로 더 우수함을 의미합니다.</p>
+                </div>
+                <div class="weighted-scores-table">
+                    <h5>가중 점수 순위</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>순위</th>
+                                <th>항목명</th>
+                                <th>가중 점수</th>
+                                <th>평가</th>
+                            </tr>
+                        </thead>
+                        <tbody id="weighted-scores-tbody">
+                            <!-- JavaScript로 동적 생성 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="conclusion-summary">
+                    <div class="best-worst-items">
+                        <div class="best-item">
+                            <h6>🏆 최고 항목</h6>
+                            <div class="item-info">
+                                <span class="item-name" id="final-best-name">-</span>
+                                <span class="item-score" id="final-best-score">-</span>
+                            </div>
+                        </div>
+                        <div class="worst-item">
+                            <h6>⚠️ 최하 항목</h6>
+                            <div class="item-info">
+                                <span class="item-name" id="final-worst-name">-</span>
+                                <span class="item-score" id="final-worst-score">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </article>
     </main>
     <footer>
