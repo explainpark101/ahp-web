@@ -5,7 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>AHP project</title>
     <link rel="stylesheet" href="/static/main.css"/>
-    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTML'></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            },
+            startup: {
+                pageReady: function() {
+                    MathJax.startup.defaultPageReady();
+                    // 강제로 모든 수식 렌더링
+                    MathJax.typesetPromise().then(function() {
+                        console.log('MathJax 렌더링 완료');
+                    }).catch(function(err) {
+                        console.error('MathJax 렌더링 오류:', err);
+                    });
+                }
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <main>
@@ -126,8 +152,213 @@
         <article id="step-3">
             <!-- Criteria Score Input -->
         </article>
-        <article id="step-process" class="d-none">
-            <span>process view is not on development</span>
+        <article id="step-process">
+            <div class="fold d-flex justify-content-space-between">
+                <h4>AHP 계산 과정 상세보기</h4>
+                <label>
+                    <input type="checkbox"/>
+                    fold
+                </label>
+            </div>
+            <div class="calculation-process">
+                                 <!-- 기준별 쌍대비교 행렬 -->
+                 <div class="process-section" id="criteria-comparison-section">
+                     <h5>1. 기준별 쌍대비교 행렬</h5>
+                     <div class="matrix-container">
+                         <div class="matrix-description">
+                             <p>각 기준 간의 상대적 중요도를 쌍대비교하여 생성된 행렬입니다.</p>
+                             <div class="latex-formula">
+                                 <p>쌍대비교 행렬 \(A\)는 다음과 같이 정의됩니다:</p>
+                                 <p>\[A = \begin{bmatrix}
+                                     a_{11} & a_{12} & \cdots & a_{1n} \\
+                                     a_{21} & a_{22} & \cdots & a_{2n} \\
+                                     \vdots & \vdots & \ddots & \vdots \\
+                                     a_{n1} & a_{n2} & \cdots & a_{nn}
+                                 \end{bmatrix}\]</p>
+                                 <p>여기서 \(a_{ij}\)는 기준 \(i\)가 기준 \(j\)에 비해 얼마나 중요한지를 나타내며, \(a_{ij} = \frac{1}{a_{ji}}\)의 역수 관계를 가집니다.</p>
+                             </div>
+                         </div>
+                         <div class="matrix-display" id="criteria-matrix-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 기준별 정규화된 행렬 -->
+                 <div class="process-section" id="criteria-normalized-section">
+                     <h5>2. 기준별 정규화된 행렬</h5>
+                     <div class="matrix-container">
+                         <div class="matrix-description">
+                             <p>쌍대비교 행렬을 정규화하여 각 기준의 가중치를 계산합니다.</p>
+                             <div class="latex-formula">
+                                 <p>정규화된 행렬 \(N\)의 각 요소는 다음과 같이 계산됩니다:</p>
+                                 <p>\[n_{ij} = \frac{a_{ij}}{\sum_{k=1}^{n} a_{kj}}\]</p>
+                                 <p>각 기준의 가중치 \(w_i\)는 정규화된 행렬의 행 평균으로 계산됩니다:</p>
+                                 <p>\[w_i = \frac{1}{n} \sum_{j=1}^{n} n_{ij}\]</p>
+                                 <p>가중치 벡터 \(W\)는 다음과 같습니다:</p>
+                                 <p>\[W = \begin{bmatrix} w_1 \\ w_2 \\ \vdots \\ w_n \end{bmatrix}\]</p>
+                             </div>
+                         </div>
+                         <div class="matrix-display" id="criteria-normalized-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                         <div class="weight-vector" id="criteria-weight-vector">
+                             <h6>기준 가중치 벡터:</h6>
+                             <div class="weight-values">
+                                 <!-- JavaScript로 동적 생성 -->
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 기준별 일관성 검증 -->
+                 <div class="process-section" id="criteria-consistency-section">
+                     <h5>3. 기준별 일관성 검증</h5>
+                     <div class="consistency-details">
+                         <div class="consistency-calculation">
+                             <h6>일관성 지표 계산:</h6>
+                             <div class="latex-formula">
+                                 <p>고유값 \(\lambda_{max}\)는 다음 방정식을 풀어서 구합니다:</p>
+                                 <p>\[AW = \lambda_{max}W\]</p>
+                                 <p>일관성 지표(CI)는 다음과 같이 계산됩니다:</p>
+                                 <p>\[CI = \frac{\lambda_{max} - n}{n - 1}\]</p>
+                                 <p>일관성 비율(CR)은 다음과 같이 계산됩니다:</p>
+                                 <p>\[CR = \frac{CI}{RI}\]</p>
+                                 <p>여기서 \(RI\)는 랜덤 일관성 지표로, 행렬의 크기에 따라 정해진 값입니다.</p>
+                                 <p>일관성 검증 기준: \(CR \leq 0.1\)이면 일관성이 있다고 판단합니다.</p>
+                             </div>
+                             <div class="ci-cr-details">
+                                 <div class="ci-calculation">
+                                     <span class="calculation-label">CI (Consistency Index):</span>
+                                     <span class="calculation-value" id="criteria-ci-value">-</span>
+                                 </div>
+                                 <div class="cr-calculation">
+                                     <span class="calculation-label">CR (Consistency Ratio):</span>
+                                     <span class="calculation-value" id="criteria-cr-value">-</span>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 항목별 쌍대비교 행렬들 -->
+                 <div class="process-section" id="items-comparison-section">
+                     <h5>4. 항목별 쌍대비교 행렬 (기준별)</h5>
+                     <div class="matrix-container">
+                         <div class="matrix-description">
+                             <p>각 기준 \(c_k\)에 대해 항목들을 쌍대비교한 행렬들입니다.</p>
+                             <div class="latex-formula">
+                                 <p>기준 \(c_k\)에 대한 항목 쌍대비교 행렬 \(A^{(k)}\)는 다음과 같습니다:</p>
+                                 <p>\[A^{(k)} = \begin{bmatrix}
+                                     a_{11}^{(k)} & a_{12}^{(k)} & \cdots & a_{1m}^{(k)} \\
+                                     a_{21}^{(k)} & a_{22}^{(k)} & \cdots & a_{2m}^{(k)} \\
+                                     \vdots & \vdots & \ddots & \vdots \\
+                                     a_{m1}^{(k)} & a_{m2}^{(k)} & \cdots & a_{mm}^{(k)}
+                                 \end{bmatrix}\]</p>
+                                 <p>여기서 \(a_{ij}^{(k)}\)는 기준 \(c_k\)에서 항목 \(i\)가 항목 \(j\)에 비해 얼마나 우수한지를 나타냅니다.</p>
+                             </div>
+                         </div>
+                         <div class="items-matrices-container" id="items-matrices-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 항목별 정규화된 행렬들 -->
+                 <div class="process-section" id="items-normalized-section">
+                     <h5>5. 항목별 정규화된 행렬 (기준별)</h5>
+                     <div class="matrix-container">
+                         <div class="matrix-description">
+                             <p>각 기준별 항목 쌍대비교 행렬을 정규화한 행렬들입니다.</p>
+                             <div class="latex-formula">
+                                 <p>기준 \(c_k\)에 대한 정규화된 행렬 \(N^{(k)}\)의 각 요소는 다음과 같습니다:</p>
+                                 <p>\[n_{ij}^{(k)} = \frac{a_{ij}^{(k)}}{\sum_{l=1}^{m} a_{lj}^{(k)}}\]</p>
+                                 <p>여기서 \(m\)은 항목의 개수입니다.</p>
+                             </div>
+                         </div>
+                         <div class="items-normalized-container" id="items-normalized-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 항목별 우선순위 벡터들 -->
+                 <div class="process-section" id="items-priority-section">
+                     <h5>6. 항목별 우선순위 벡터 (기준별)</h5>
+                     <div class="matrix-container">
+                         <div class="matrix-description">
+                             <p>각 기준별로 항목들의 우선순위를 나타내는 벡터들입니다.</p>
+                             <div class="latex-formula">
+                                 <p>기준 \(c_k\)에서 항목 \(i\)의 우선순위 \(p_i^{(k)}\)는 다음과 같이 계산됩니다:</p>
+                                 <p>\[p_i^{(k)} = \frac{1}{m} \sum_{j=1}^{m} n_{ij}^{(k)}\]</p>
+                                 <p>기준 \(c_k\)에 대한 우선순위 벡터 \(P^{(k)}\)는 다음과 같습니다:</p>
+                                 <p>\[P^{(k)} = \begin{bmatrix} p_1^{(k)} \\ p_2^{(k)} \\ \vdots \\ p_m^{(k)} \end{bmatrix}\]</p>
+                                 <p>이 벡터는 \(\sum_{i=1}^{m} p_i^{(k)} = 1\)을 만족합니다.</p>
+                             </div>
+                         </div>
+                         <div class="priority-vectors-container" id="priority-vectors-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 최종 가중 점수 계산 -->
+                 <div class="process-section" id="final-calculation-section">
+                     <h5>7. 최종 가중 점수 계산</h5>
+                     <div class="final-calculation-container">
+                         <div class="calculation-description">
+                             <p>각 항목의 최종 점수는 다음과 같이 계산됩니다:</p>
+                             <div class="latex-formula">
+                                 <p>항목 \(i\)의 최종 가중 점수 \(S_i\)는 다음과 같이 계산됩니다:</p>
+                                 <p>\[S_i = \sum_{k=1}^{n} w_k \cdot p_i^{(k)}\]</p>
+                                 <p>여기서 \(w_k\)는 기준 \(c_k\)의 가중치이고, \(p_i^{(k)}\)는 기준 \(c_k\)에서 항목 \(i\)의 우선순위입니다.</p>
+                                 <p>전체 가중 점수 벡터 \(S\)는 다음과 같습니다:</p>
+                                 <p>\[S = \begin{bmatrix} S_1 \\ S_2 \\ \vdots \\ S_m \end{bmatrix}\]</p>
+                                 <p>이 점수들을 정렬하여 최종 우선순위를 결정합니다.</p>
+                             </div>
+                         </div>
+                         <div class="weighted-scores-matrix" id="weighted-scores-matrix-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                         <div class="final-priority-ranking" id="final-priority-ranking-display">
+                             <!-- JavaScript로 동적 생성 -->
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- 계산 요약 -->
+                 <div class="process-section" id="calculation-summary-section">
+                     <h5>8. 계산 요약</h5>
+                     <div class="summary-container">
+                         <div class="summary-item">
+                             <span class="summary-label">총 기준 수:</span>
+                             <span class="summary-value" id="total-criteria-count">-</span>
+                         </div>
+                         <div class="summary-item">
+                             <span class="summary-label">총 항목 수:</span>
+                             <span class="summary-value" id="total-items-count">-</span>
+                         </div>
+                         <div class="summary-item">
+                             <span class="summary-label">전체 일관성:</span>
+                             <span class="summary-value" id="overall-consistency">-</span>
+                         </div>
+                         <div class="summary-item">
+                             <span class="summary-label">계산 완료 시간:</span>
+                             <span class="summary-value" id="calculation-time">-</span>
+                         </div>
+                     </div>
+                     <div class="latex-formula">
+                         <p>AHP 방법론의 전체 계산 과정을 요약하면:</p>
+                         <p>1. 기준 간 쌍대비교 행렬 \(A\) 생성</p>
+                         <p>2. 정규화된 행렬 \(N\) 계산: \(n_{ij} = \frac{a_{ij}}{\sum_{k=1}^{n} a_{kj}}\)</p>
+                         <p>3. 가중치 벡터 \(W\) 계산: \(w_i = \frac{1}{n} \sum_{j=1}^{n} n_{ij}\)</p>
+                         <p>4. 일관성 검증: \(CI = \frac{\lambda_{max} - n}{n - 1}\), \(CR = \frac{CI}{RI}\)</p>
+                         <p>5. 각 기준별 항목 우선순위 벡터 \(P^{(k)}\) 계산</p>
+                         <p>6. 최종 가중 점수 \(S_i = \sum_{k=1}^{n} w_k \cdot p_i^{(k)}\) 계산</p>
+                         <p>7. 최종 우선순위 결정</p>
+                     </div>
+                 </div>
+            </div>
         </article>
         <article id="step-results">
 
@@ -224,5 +455,40 @@
     </footer>
 
     <script src="/static/index.js"></script>
+    <script>
+        // MathJax가 완전히 로드된 후 강제 렌더링 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            // MathJax가 로드될 때까지 대기
+            function waitForMathJax() {
+                if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                    // MathJax가 로드되었으면 강제 렌더링 실행
+                    MathJax.typesetPromise().then(function() {
+                        console.log('MathJax 강제 렌더링 완료');
+                    }).catch(function(err) {
+                        console.error('MathJax 강제 렌더링 오류:', err);
+                    });
+                } else {
+                    // MathJax가 아직 로드되지 않았으면 잠시 후 다시 시도
+                    setTimeout(waitForMathJax, 100);
+                }
+            }
+
+            // 페이지 로드 후 약간의 지연을 두고 실행
+            setTimeout(waitForMathJax, 500);
+        });
+
+        // 페이지가 완전히 로드된 후에도 한 번 더 시도
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+                    MathJax.typesetPromise().then(function() {
+                        console.log('페이지 로드 후 MathJax 렌더링 완료');
+                    }).catch(function(err) {
+                        console.error('페이지 로드 후 MathJax 렌더링 오류:', err);
+                    });
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

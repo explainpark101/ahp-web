@@ -1,0 +1,14 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "ahp-project",
+      "dependencies": {
+        "@picocss/pico": "^2.0.6",
+      },
+    },
+  },
+  "packages": {
+    "@picocss/pico": ["@picocss/pico@2.0.6", "", {}, "sha512-/d8qsykowelD6g8k8JYgmCagOIulCPHMEc2NC4u7OjmpQLmtSetLhEbt0j1n3fPNJVcrT84dRp0RfJBn3wJROA=="],
+  }
+}

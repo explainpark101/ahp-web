@@ -599,6 +599,9 @@ function updateFinalConclusion(calcResult) {
 
     // 최종 결론 카드 표시
     finalConclusionContainer.classList.remove('d-none');
+
+    // AHP 계산 과정 상세보기 업데이트
+    updateCalculationProcess(calcResult);
 }
 
 /**
@@ -706,6 +709,486 @@ document.querySelector(`#import-data-button`).addEventListener("click", async e=
     const exportedData = JSON.parse(data);
     importResult(exportedData);
 });
+/**
+ * AHP 계산 과정 상세보기를 업데이트하는 함수
+ * @param {Object} calcResult - 계산 결과 데이터
+ */
+function updateCalculationProcess(calcResult) {
+    // step-process 섹션 표시
+    const stepProcess = document.querySelector('#step-process');
+    if (stepProcess) {
+        stepProcess.classList.remove('d-none');
+    }
+
+    // 1. 기준별 쌍대비교 행렬 업데이트
+    updateCriteriaComparisonMatrix(calcResult);
+
+    // 2. 기준별 정규화된 행렬 업데이트
+    updateCriteriaNormalizedMatrix(calcResult);
+
+    // 3. 기준별 일관성 검증 업데이트
+    updateCriteriaConsistency(calcResult);
+
+    // 4. 항목별 쌍대비교 행렬들 업데이트
+    updateItemsComparisonMatrices(calcResult);
+
+    // 5. 항목별 정규화된 행렬들 업데이트
+    updateItemsNormalizedMatrices(calcResult);
+
+    // 6. 항목별 우선순위 벡터들 업데이트
+    updateItemsPriorityVectors(calcResult);
+
+    // 7. 최종 가중 점수 계산 업데이트
+    updateFinalWeightedScores(calcResult);
+
+    // 8. 계산 요약 업데이트
+    updateCalculationSummary(calcResult);
+
+    // MathJax 다시 렌더링
+    if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+        MathJax.typesetPromise().then(() => {
+            console.log('계산 과정 수식 렌더링 완료');
+        }).catch(err => {
+            console.error('계산 과정 수식 렌더링 오류:', err);
+        });
+    }
+}
+
+/**
+ * 기준별 쌍대비교 행렬 업데이트
+ */
+function updateCriteriaComparisonMatrix(calcResult) {
+    const matrixDisplay = document.querySelector('#criteria-matrix-display');
+    if (!matrixDisplay || !calcResult['criteria-matrix']) return;
+
+    const matrix = calcResult['criteria-matrix'];
+    const matrixData = calcData['criteria-matrix'];
+
+    let html = '<div class="matrix-with-formula">';
+    html += '<h6>실제 입력된 쌍대비교 행렬:</h6>';
+    html += '<div class="matrix-table">';
+    html += '<table><thead><tr><th></th>';
+
+    // 헤더 행
+    criterias.forEach(criteria => {
+        html += `<th>${criteria.name}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // 데이터 행
+    matrixData.forEach((row, i) => {
+        html += `<tr><th>${criterias[i]?.name || `Criteria ${i+1}`}</th>`;
+        row.forEach((value, j) => {
+            html += `<td>${value.toFixed(4)}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // LaTeX 수식으로 표현
+    html += '<div class="latex-matrix">';
+    html += '<h6>LaTeX 수식 표현:</h6>';
+    html += '<p>\\[A = \\begin{bmatrix}';
+
+    matrixData.forEach((row, i) => {
+        if (i > 0) html += ' \\\\';
+        row.forEach((value, j) => {
+            if (j > 0) html += ' &';
+            html += ` ${value.toFixed(4)}`;
+        });
+    });
+
+    html += '\\end{bmatrix}\\]</p></div>';
+    html += '</div>';
+
+    matrixDisplay.innerHTML = html;
+}
+
+/**
+ * 기준별 정규화된 행렬 업데이트
+ */
+function updateCriteriaNormalizedMatrix(calcResult) {
+    const matrixDisplay = document.querySelector('#criteria-normalized-display');
+    const weightVector = document.querySelector('#criteria-weight-vector .weight-values');
+    if (!matrixDisplay || !calcResult['criteria-matrix']) return;
+
+    const matrix = calcResult['criteria-matrix'];
+
+    let html = '<div class="matrix-with-formula">';
+    html += '<h6>정규화된 행렬:</h6>';
+    html += '<div class="matrix-table">';
+    html += '<table><thead><tr><th></th>';
+
+    // 헤더 행
+    criterias.forEach(criteria => {
+        html += `<th>${criteria.name}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // 데이터 행
+    matrix.newMatrix.forEach((row, i) => {
+        html += `<tr><th>${criterias[i]?.name || `Criteria ${i+1}`}</th>`;
+        row.forEach((value, j) => {
+            html += `<td>${value.toFixed(4)}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+
+    // 가중치 벡터
+    if (weightVector) {
+        weightVector.innerHTML = '';
+        matrix.rowAverage.forEach((weight, i) => {
+            const weightDiv = document.createElement('div');
+            weightDiv.className = 'weight-item';
+            weightDiv.innerHTML = `
+                <span class="weight-label">${criterias[i]?.name || `Criteria ${i+1}`}:</span>
+                <span class="weight-value">${weight.toFixed(4)}</span>
+            `;
+            weightVector.appendChild(weightDiv);
+        });
+    }
+
+    // LaTeX 수식으로 표현
+    html += '<div class="latex-matrix">';
+    html += '<h6>LaTeX 수식 표현:</h6>';
+    html += '<p>\\[N = \\begin{bmatrix}';
+
+    matrix.newMatrix.forEach((row, i) => {
+        if (i > 0) html += ' \\\\';
+        row.forEach((value, j) => {
+            if (j > 0) html += ' &';
+            html += ` ${value.toFixed(4)}`;
+        });
+    });
+
+    html += '\\end{bmatrix}\\]</p>';
+    html += '<p>\\[W = \\begin{bmatrix}';
+    matrix.rowAverage.forEach((weight, i) => {
+        if (i > 0) html += ' \\\\';
+        html += ` ${weight.toFixed(4)}`;
+    });
+    html += '\\end{bmatrix}\\]</p></div>';
+    html += '</div>';
+
+    matrixDisplay.innerHTML = html;
+}
+
+/**
+ * 기준별 일관성 검증 업데이트
+ */
+function updateCriteriaConsistency(calcResult) {
+    const ciValue = document.querySelector('#criteria-ci-value');
+    const crValue = document.querySelector('#criteria-cr-value');
+    if (!ciValue || !crValue || !calcResult['criteria-matrix']) return;
+
+    const matrix = calcResult['criteria-matrix'];
+
+    ciValue.textContent = matrix.CI.toFixed(4);
+    crValue.textContent = matrix.CR.toFixed(4);
+
+    // LaTeX 수식으로 표현
+    const consistencyDetails = document.querySelector('#criteria-consistency-section .consistency-details');
+    if (consistencyDetails) {
+        const latexSection = consistencyDetails.querySelector('.latex-formula');
+        if (latexSection) {
+            latexSection.innerHTML += `
+                <div class="actual-calculation">
+                    <h6>실제 계산 결과:</h6>
+                    <p>\\[\\lambda_{max} = ${matrix.lambdaMax.toFixed(4)}\\]</p>
+                    <p>\\[CI = \\frac{${matrix.lambdaMax.toFixed(4)} - ${matrix.rowAverage.length} }{ ${matrix.rowAverage.length} - 1 } = ${matrix.CI.toFixed(4)}\\]</p>
+                    <p>\\[CR = \\frac{${matrix.CI.toFixed(4)}}{${matrix.RI.toFixed(4)}} = ${matrix.CR.toFixed(4)}\\]</p>
+                </div>
+            `;
+        }
+    }
+}
+
+/**
+ * 항목별 쌍대비교 행렬들 업데이트
+ */
+function updateItemsComparisonMatrices(calcResult) {
+    const matricesDisplay = document.querySelector('#items-matrices-display');
+    if (!matricesDisplay) return;
+
+    let html = '';
+
+    Object.entries(calcResult).forEach(([key, data]) => {
+        if (key === 'criteria-matrix') return;
+
+        const criteriaIndex = parseInt(key.split('-')[1]) - 1;
+        const criteriaName = criterias[criteriaIndex]?.name || `Criteria ${criteriaIndex + 1}`;
+        const matrixData = calcData[key];
+
+        html += '<div class="items-matrix-section">';
+        html += `<h6>${criteriaName} 기준 항목 비교 행렬:</h6>`;
+        html += '<div class="matrix-table">';
+        html += '<table><thead><tr><th></th>';
+
+        // 헤더 행
+        items.forEach(item => {
+            html += `<th>${item.name}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        // 데이터 행
+        matrixData.forEach((row, i) => {
+            html += `<tr><th>${items[i]?.name || `Item ${i+1}`}</th>`;
+            row.forEach((value, j) => {
+                html += `<td>${value.toFixed(4)}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+
+        // LaTeX 수식으로 표현
+        html += '<div class="latex-matrix">';
+        html += '<p>\\[A^{(' + (criteriaIndex + 1) + ')} = \\begin{bmatrix}';
+
+        matrixData.forEach((row, i) => {
+            if (i > 0) html += ' \\\\';
+            row.forEach((value, j) => {
+                if (j > 0) html += ' &';
+                html += ` ${value.toFixed(4)}`;
+            });
+        });
+
+        html += '\\end{bmatrix}\\]</p></div>';
+        html += '</div>';
+    });
+
+    matricesDisplay.innerHTML = html;
+}
+
+/**
+ * 항목별 정규화된 행렬들 업데이트
+ */
+function updateItemsNormalizedMatrices(calcResult) {
+    const matricesDisplay = document.querySelector('#items-normalized-display');
+    if (!matricesDisplay) return;
+
+    let html = '';
+
+    Object.entries(calcResult).forEach(([key, data]) => {
+        if (key === 'criteria-matrix') return;
+
+        const criteriaIndex = parseInt(key.split('-')[1]) - 1;
+        const criteriaName = criterias[criteriaIndex]?.name || `Criteria ${criteriaIndex + 1}`;
+
+        html += '<div class="items-normalized-section">';
+        html += `<h6>${criteriaName} 기준 정규화된 행렬:</h6>`;
+        html += '<div class="matrix-table">';
+        html += '<table><thead><tr><th></th>';
+
+        // 헤더 행
+        items.forEach(item => {
+            html += `<th>${item.name}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        // 데이터 행
+        data.newMatrix.forEach((row, i) => {
+            html += `<tr><th>${items[i]?.name || `Item ${i+1}`}</th>`;
+            row.forEach((value, j) => {
+                html += `<td>${value.toFixed(4)}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+
+        // LaTeX 수식으로 표현
+        html += '<div class="latex-matrix">';
+        html += '<p>\\[N^{(' + (criteriaIndex + 1) + ')} = \\begin{bmatrix}';
+
+        data.newMatrix.forEach((row, i) => {
+            if (i > 0) html += ' \\\\';
+            row.forEach((value, j) => {
+                if (j > 0) html += ' &';
+                html += ` ${value.toFixed(4)}`;
+            });
+        });
+
+        html += '\\end{bmatrix}\\]</p></div>';
+        html += '</div>';
+    });
+
+    matricesDisplay.innerHTML = html;
+}
+
+/**
+ * 항목별 우선순위 벡터들 업데이트
+ */
+function updateItemsPriorityVectors(calcResult) {
+    const vectorsDisplay = document.querySelector('#priority-vectors-display');
+    if (!vectorsDisplay) return;
+
+    let html = '';
+
+    Object.entries(calcResult).forEach(([key, data]) => {
+        if (key === 'criteria-matrix') return;
+
+        const criteriaIndex = parseInt(key.split('-')[1]) - 1;
+        const criteriaName = criterias[criteriaIndex]?.name || `Criteria ${criteriaIndex + 1}`;
+
+        html += '<div class="priority-vector-section">';
+        html += `<h6>${criteriaName} 기준 우선순위 벡터:</h6>`;
+        html += '<div class="priority-vector-table">';
+        html += '<table><thead><tr><th>항목</th><th>우선순위</th></tr></thead><tbody>';
+
+        // 우선순위 데이터
+        data.rowAverage.forEach((priority, i) => {
+            html += `<tr><td>${items[i]?.name || `Item ${i+1}`}</td><td>${priority.toFixed(4)}</td></tr>`;
+        });
+
+        html += '</tbody></table></div>';
+
+        // LaTeX 수식으로 표현
+        html += '<div class="latex-matrix">';
+        html += '<p>\\[P^{(' + (criteriaIndex + 1) + ')} = \\begin{bmatrix}';
+
+        data.rowAverage.forEach((priority, i) => {
+            if (i > 0) html += ' \\\\';
+            html += ` ${priority.toFixed(4)}`;
+        });
+
+        html += '\\end{bmatrix}\\]</p></div>';
+        html += '</div>';
+    });
+
+    vectorsDisplay.innerHTML = html;
+}
+
+/**
+ * 최종 가중 점수 계산 업데이트
+ */
+function updateFinalWeightedScores(calcResult) {
+    const matrixDisplay = document.querySelector('#weighted-scores-matrix-display');
+    const rankingDisplay = document.querySelector('#final-priority-ranking-display');
+    if (!matrixDisplay || !rankingDisplay) return;
+
+    // criteria-matrix에서 기준별 중요도 가져오기
+    const criteriaMatrix = calcResult['criteria-matrix'];
+    if (!criteriaMatrix || !criteriaMatrix.rowAverage) return;
+
+    // 각 항목별로 가중 점수 계산
+    const weightedScores = [];
+    const criteriaWeights = criteriaMatrix.rowAverage;
+
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
+        const itemName = items[itemIndex]?.name || `Item ${itemIndex + 1}`;
+        let totalWeightedScore = 0;
+
+        criteriaWeights.forEach((weight, index) => {
+            totalWeightedScore += weight * calcResult[`criteria-${index+1}`].rowAverage[itemIndex];
+        });
+
+        weightedScores.push({
+            name: itemName,
+            score: totalWeightedScore,
+            itemIndex: itemIndex
+        });
+    }
+
+    // 가중 점수로 정렬
+    weightedScores.sort((a, b) => b.score - a.score);
+
+    // 가중 점수 행렬 표시
+    let matrixHtml = '<div class="weighted-scores-matrix">';
+    matrixHtml += '<h6>가중 점수 계산 행렬:</h6>';
+    matrixHtml += '<div class="matrix-table">';
+    matrixHtml += '<table><thead><tr><th>항목</th>';
+
+    criterias.forEach(criteria => {
+        matrixHtml += `<th>${criteria.name}</th>`;
+    });
+    matrixHtml += '<th>최종 점수</th></tr></thead><tbody>';
+
+    weightedScores.forEach(item => {
+        matrixHtml += `<tr><th>${item.name}</th>`;
+
+        criterias.forEach((criteria, index) => {
+            const weight = criteriaWeights[index];
+            const priority = calcResult[`criteria-${index+1}`].rowAverage[item.itemIndex];
+            const weightedValue = weight * priority;
+            matrixHtml += `<td>${weightedValue.toFixed(4)}</td>`;
+        });
+
+        matrixHtml += `<td><strong>${item.score.toFixed(4)}</strong></td></tr>`;
+    });
+
+    matrixHtml += '</tbody></table></div>';
+
+    // LaTeX 수식으로 표현
+    matrixHtml += '<div class="latex-matrix">';
+    matrixHtml += '<h6>LaTeX 수식 표현:</h6>';
+    matrixHtml += '<p>각 항목의 최종 점수 계산:</p>';
+
+    weightedScores.forEach((item, i) => {
+        matrixHtml += '<p>\\[S_{' + (i + 1) + '} = ';
+        criterias.forEach((criteria, index) => {
+            const weight = criteriaWeights[index];
+            const priority = calcResult[`criteria-${index+1}`].rowAverage[item.itemIndex];
+            if (index > 0) matrixHtml += ' + ';
+            matrixHtml += `${weight.toFixed(4)} \\times ${priority.toFixed(4)}`;
+        });
+        matrixHtml += ` = ${item.score.toFixed(4)}\\]</p>`;
+    });
+
+    matrixHtml += '</div></div>';
+    matrixDisplay.innerHTML = matrixHtml;
+
+    // 최종 우선순위 표시
+    let rankingHtml = '<div class="final-ranking">';
+    rankingHtml += '<h6>최종 우선순위:</h6>';
+    rankingHtml += '<div class="ranking-list">';
+
+    weightedScores.forEach((item, index) => {
+        rankingHtml += `<div class="ranking-item rank-${index + 1}">`;
+        rankingHtml += `<span class="rank-number">${index + 1}</span>`;
+        rankingHtml += `<span class="item-name">${item.name}</span>`;
+        rankingHtml += `<span class="final-score">${item.score.toFixed(4)}</span>`;
+        rankingHtml += '</div>';
+    });
+
+    rankingHtml += '</div></div>';
+    rankingDisplay.innerHTML = rankingHtml;
+}
+
+/**
+ * 계산 요약 업데이트
+ */
+function updateCalculationSummary(calcResult) {
+    const totalCriteriaCount = document.querySelector('#total-criteria-count');
+    const totalItemsCount = document.querySelector('#total-items-count');
+    const overallConsistency = document.querySelector('#overall-consistency');
+    const calculationTime = document.querySelector('#calculation-time');
+
+    if (totalCriteriaCount) totalCriteriaCount.textContent = criterias.length;
+    if (totalItemsCount) totalItemsCount.textContent = items.length;
+
+    // 전체 일관성 계산 (평균 CR)
+    if (overallConsistency) {
+        const allCR = Object.values(calcResult).map(data => data.CR);
+        const avgCR = allCR.reduce((sum, cr) => sum + cr, 0) / allCR.length;
+
+        let consistencyStatus = '';
+        if (avgCR <= 0.1) {
+            consistencyStatus = ' (신뢰할 수 있음)';
+        } else if (avgCR < 0.9) {
+            consistencyStatus = ' (허용 가능)';
+        } else {
+            consistencyStatus = ' (신뢰할 수 없음)';
+        }
+
+        overallConsistency.textContent = avgCR.toFixed(4) + consistencyStatus;
+    }
+
+    if (calculationTime) {
+        const now = new Date();
+        calculationTime.textContent = now.toLocaleString('ko-KR');
+    }
+}
+
 /**
  * @param { Object } exportedData
  */
